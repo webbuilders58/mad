@@ -1,0 +1,168 @@
+package com.example.crudnew;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+import java.util.Calendar;
+public class MainActivity extends AppCompatActivity {
+    private EditText editText;
+    private RadioButton radioButtonMale, radioButtonFemale;
+    private RadioGroup radioGroupGender;
+    private Spinner spinnerCountry;
+    private Button buttonSubmit, buttonDatePicker, buttonTimePicker;
+    private TextView textViewDate, textViewTime;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        editText = findViewById(R.id.editText);
+        radioButtonMale = findViewById(R.id.radioMale);
+        radioButtonFemale = findViewById(R.id.radioFemale);
+        radioGroupGender = findViewById(R.id.radioGroupGender);
+        spinnerCountry = findViewById(R.id.spinnerCountry);
+        buttonSubmit = findViewById(R.id.buttonSubmit);
+        buttonDatePicker = findViewById(R.id.buttonDatePicker);
+        buttonTimePicker = findViewById(R.id.buttonTimePicker);
+        textViewDate = findViewById(R.id.textViewDate);
+        textViewTime = findViewById(R.id.textViewTime);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.country_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCountry.setAdapter(adapter);
+        buttonSubmit.setOnClickListener(v -> {
+            String name = editText.getText().toString();
+            String gender = getSelectedGender();
+            String country = spinnerCountry.getSelectedItem().toString();
+            String date = textViewDate.getText().toString();
+            String time = textViewTime.getText().toString();
+
+            String message = "Name: " + name + "\nGender: " + gender + "\nCountry: " + country +
+                    "\nDate: " + date + "\nTime: " + time;
+
+            Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+        });
+
+        buttonDatePicker.setOnClickListener(v -> {
+            openDatePicker();
+        });
+        buttonTimePicker.setOnClickListener(v -> {
+            openTimePicker();
+        });
+    }
+
+    private String getSelectedGender() {
+        int selectedId = radioGroupGender.getCheckedRadioButtonId();
+        if (selectedId == radioButtonMale.getId()) {
+            return "Male";
+        } else if (selectedId == radioButtonFemale.getId()) {
+            return "Female";
+        } else {
+            return "Not Selected";
+        }
+    }
+
+    private void openDatePicker() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        android.app.DatePickerDialog datePickerDialog = new android.app.DatePickerDialog(
+                MainActivity.this, (view, selectedYear, selectedMonth, selectedDay) -> {
+            textViewDate.setText(selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear);
+        }, year, month, day);
+        datePickerDialog.show();
+    }
+
+    private void openTimePicker() {
+        Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+        android.app.TimePickerDialog timePickerDialog = new android.app.TimePickerDialog(
+                MainActivity.this, (view, selectedHour, selectedMinute) -> {
+            textViewTime.setText(selectedHour + ":" + selectedMinute);
+        }, hour, minute, true);
+        timePickerDialog.show();
+    }
+}
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter your name"
+        android:padding="10dp"/>
+    <RadioGroup
+        android:id="@+id/radioGroupGender"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <RadioButton
+            android:id="@+id/radioMale"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Male" />
+        <RadioButton
+            android:id="@+id/radioFemale"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Female" />
+    </RadioGroup>
+    <Spinner
+        android:id="@+id/spinnerCountry"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/buttonDatePicker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pick Date" />
+    <TextView
+        android:id="@+id/textViewDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Selected Date: "
+        android:padding="10dp"
+        android:textSize="16sp" />
+    <Button
+        android:id="@+id/buttonTimePicker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pick Time" />
+    <TextView
+        android:id="@+id/textViewTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Selected Time: "
+        android:padding="10dp"
+        android:textSize="16sp" />
+    <Button
+        android:id="@+id/buttonSubmit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Submit"
+        android:layout_gravity="bottom|center" />
+</LinearLayout>
+
+
+ <string-array name="country_array">
+        <item>India</item>
+        <item>Us</item>
+        <item>China</item>
+        <item>Russia</item>
+        <item>UK</item>
+    </string-array>
