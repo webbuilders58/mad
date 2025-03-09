@@ -10,167 +10,289 @@ androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
 MainActivity.java 
 
-package com.example.crudoperations;
+package com.example.crudnew;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
-    EditText rollNo, name, department;
-    Button insert, read, update, delete;
-    DatabaseHelper dbHelper;
+    EditText etRollno, etName, etDept;
+    Button bInsert, bUpdate, bRead, bDelete;
+    SQLiteDatabase db;
+    DBHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        rollNo = findViewById(R.id.rollNo);
-        name = findViewById(R.id.name);
-        department = findViewById(R.id.department);
-        insert = findViewById(R.id.insert);
-        read = findViewById(R.id.read);
-        update = findViewById(R.id.update);
-        delete = findViewById(R.id.delete);
-        dbHelper = new DatabaseHelper(this);
+        // Initialize views
+        etRollno = findViewById(R.id.et1);
+        etName = findViewById(R.id.et2);
+        etDept = findViewById(R.id.et3);
+        bInsert = findViewById(R.id.b1);
+        bUpdate = findViewById(R.id.b2);
+        bRead = findViewById(R.id.b3);
+        bDelete = findViewById(R.id.b4);
 
-        insert.setOnClickListener(v -> {
-            boolean isInserted = dbHelper.insertData(rollNo.getText().toString(), name.getText().toString(), department.getText().toString());
-            showToast(isInserted ? "Inserted Successfully" : "Insertion Failed");
-        });
-
-        read.setOnClickListener(v -> {
-            Cursor res = dbHelper.getData(rollNo.getText().toString());
-            if (res.moveToFirst()) {
-                name.setText(res.getString(1));
-                department.setText(res.getString(2));
-            } else {
-                showToast("No Data Found");
-            }
-        });
-
-        update.setOnClickListener(v -> {
-            boolean isUpdated = dbHelper.updateData(rollNo.getText().toString(), name.getText().toString(), department.getText().toString());
-            showToast(isUpdated ? "Updated Successfully" : "Update Failed");
-        });
-
-        delete.setOnClickListener(v -> {
-            boolean isDeleted = dbHelper.deleteData(rollNo.getText().toString());
-            showToast(isDeleted ? "Deleted Successfully" : "Deletion Failed");
-        });
+        // Initialize database helper
+        dbHelper = new DBHelper(this);
+        db = dbHelper.getWritableDatabase();
     }
 
-    private void showToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    // Insert student details into the database
+    public void onInsert(View view) {
+        String rollno = etRollno.getText().toString();
+        String name = etName.getText().toString();
+        String dept = etDept.getText().toString();
+
+        if (rollno.isEmpty() || name.isEmpty() || dept.isEmpty()) {
+            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+        } else {
+            ContentValues values = new ContentValues();
+            values.put("rollno", rollno);
+            values.put("name", name);
+            values.put("dept", dept);
+
+            long result = db.insert("student", null, values);
+
+            if (result != -1) {
+                Toast.makeText(this, "Inserted Successfully", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Insertion Failed", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    // Update student details based on roll number
+    public void onUpdate(View view) {
+        String rollno = etRollno.getText().toString();
+        String name = etName.getText().toString();
+        String dept = etDept.getText().toString();
+
+        if (rollno.isEmpty() || name.isEmpty() || dept.isEmpty()) {
+            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+        } else {
+            ContentValues values = new ContentValues();
+            values.put("name", name);
+            values.put("dept", dept);
+
+            int rowsUpdated = db.update("student", values, "rollno = ?", new String[]{rollno});
+            if (rowsUpdated > 0) {
+                Toast.makeText(this, "Updated Successfully", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Update Failed", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    // Read all student details and display in a table
+    public void onRead(View view) {
+        TableLayout tableLayout = findViewById(R.id.tableLayout);
+        tableLayout.removeAllViews();  // Clear existing rows
+
+        // Query the database to get all student records
+        Cursor cursor = db.rawQuery("SELECT * FROM student", null);
+        if (cursor.moveToFirst()) {
+            // Add table headers
+            TableRow headerRow = new TableRow(this);
+            TextView headerRollno = new TextView(this);
+            headerRollno.setText("Rollno");
+            TextView headerName = new TextView(this);
+            headerName.setText("Name");
+            TextView headerDept = new TextView(this);
+            headerDept.setText("Dept");
+
+            headerRow.addView(headerRollno);
+            headerRow.addView(headerName);
+            headerRow.addView(headerDept);
+            tableLayout.addView(headerRow);
+
+            do {
+                TableRow row = new TableRow(this);
+                TextView rollno = new TextView(this);
+                rollno.setText(cursor.getString(0));
+                TextView name = new TextView(this);
+                name.setText(cursor.getString(1));
+                TextView dept = new TextView(this);
+                dept.setText(cursor.getString(2));
+
+                row.addView(rollno);
+                row.addView(name);
+                row.addView(dept);
+                tableLayout.addView(row);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        findViewById(R.id.dataScrollView).setVisibility(View.VISIBLE);
+    }
+
+    public void onDelete(View view) {
+        String rollno = etRollno.getText().toString();
+
+        if (rollno.isEmpty()) {
+            Toast.makeText(this, "Please enter a roll number", Toast.LENGTH_SHORT).show();
+        } else {
+            int rowsDeleted = db.delete("student", "rollno = ?", new String[]{rollno});
+            if (rowsDeleted > 0) {
+                Toast.makeText(this, "Deleted Successfully", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Deletion Failed", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }
+
+
+
 activity_main.xml
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="20dp">
+    android:layout_height="match_parent">
 
+    <!-- Title TextView -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Student Details"
+        android:id="@+id/tv1"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:textStyle="bold"
+        android:textSize="30sp"/>
+
+    <!-- Roll Number EditText -->
     <EditText
-        android:id="@+id/rollNo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter Roll No" />
+        android:hint="Enter Roll Number"
+        android:id="@+id/et1"
+        android:layout_marginTop="50dp"
+        android:layout_marginHorizontal="30dp"
+        android:layout_below="@id/tv1"/>
 
+    <!-- Name EditText -->
     <EditText
-        android:id="@+id/name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter Name" />
+        android:hint="Enter Name"
+        android:id="@+id/et2"
+        android:layout_marginTop="30dp"
+        android:layout_marginHorizontal="30dp"
+        android:layout_below="@id/et1"/>
 
+    <!-- Department EditText -->
     <EditText
-        android:id="@+id/department"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter Department" />
+        android:hint="Enter Department"
+        android:id="@+id/et3"
+        android:layout_marginTop="30dp"
+        android:layout_marginHorizontal="30dp"
+        android:layout_below="@id/et2"/>
 
+    <!-- Insert Button -->
     <Button
-        android:id="@+id/insert"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Insert" />
+        android:id="@+id/b1"
+        android:onClick="onInsert"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:text="Insert"
+        android:layout_below="@id/et3"/>
 
+    <!-- Update Button -->
     <Button
-        android:id="@+id/read"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Read" />
+        android:id="@+id/b2"
+        android:onClick="onUpdate"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:text="Update"
+        android:layout_below="@id/b1"/>
 
+    <!-- Read Button -->
     <Button
-        android:id="@+id/update"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Update" />
+        android:id="@+id/b3"
+        android:onClick="onRead"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:text="Read"
+        android:layout_below="@id/b2"/>
 
+    <!-- Delete Button -->
     <Button
-        android:id="@+id/delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/b4"
+        android:onClick="onDelete"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:text="Delete"
+        android:layout_below="@id/b3"/>
+
+    <!-- ScrollView to display the Table -->
+    <ScrollView
+        android:id="@+id/dataScrollView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Delete" />
-</LinearLayout>
+        android:layout_below="@id/b4"
+        android:layout_marginTop="30dp"
+        android:visibility="gone">
+
+        <TableLayout
+            android:id="@+id/tableLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:stretchColumns="1"
+            android:padding="10dp">
+            <!-- Table header will be dynamically created -->
+        </TableLayout>
+    </ScrollView>
+
+</RelativeLayout>
+
 
 DatabaseHelper.java 
-package com.example.crudoperations;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.Cursor;
-import android.content.Context;
-import android.content.ContentValues;
-class DatabaseHelper extends SQLiteOpenHelper {
-    private static final String DATABASE_NAME = "StudentDb";
-    private static final String TABLE_NAME = "students";
-    private static final String COL_1 = "rollNo";
-    private static final String COL_2 = "name";
-    private static final String COL_3 = "department";
 
-    public DatabaseHelper(MainActivity context) {
-        super(context, DATABASE_NAME, null, 1);
+package com.example.crudnew;
+
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
+public class DBHelper extends SQLiteOpenHelper {
+    public DBHelper(Context context) {
+        super(context, "student.db", null, 1);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + TABLE_NAME + " (rollNo TEXT PRIMARY KEY, name TEXT, department TEXT)");
+        // Create student table
+        db.execSQL("CREATE TABLE student (rollno INTEGER PRIMARY KEY, name TEXT, dept TEXT)");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS student");
         onCreate(db);
     }
-
-    public boolean insertData(String rollNo, String name, String department) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("INSERT INTO " + TABLE_NAME + " VALUES(?, ?, ?)", new Object[]{rollNo, name, department});
-        return true;
-    }
-
-    public Cursor getData(String rollNo) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT * FROM " + TABLE_NAME + " WHERE rollNo=?", new String[]{rollNo});
-    }
-
-    public boolean updateData(String rollNo, String name, String department) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("UPDATE " + TABLE_NAME + " SET name=?, department=? WHERE rollNo=?", new Object[]{name, department, rollNo});
-        return true;
-    }
-
-    public boolean deleteData(String rollNo) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + TABLE_NAME + " WHERE rollNo=?", new String[]{rollNo});
-        return true;
-    }
 }
+
