@@ -1,0 +1,444 @@
+MainActivity.java :
+
+package com.example.myapplication6;
+
+import android.content.Intent;
+
+import android.os.Bundle;
+
+import android.view.View;
+
+import android.widget.Button;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+
+
+public class MainActivity extends AppCompatActivity {
+
+    @Override
+
+    protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_main);
+
+
+
+        // Find buttons by ID
+
+        Button btnLinear = findViewById(R.id.btnLinear);
+
+        Button btnRelative = findViewById(R.id.btnRelative);
+
+        Button btnList = findViewById(R.id.btnList);
+
+        Button btnGrid = findViewById(R.id.btnGrid);
+
+
+
+        // Set click listeners to navigate to different activities
+
+        btnLinear.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, LinearActivity.class)));
+
+        btnRelative.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, RelativeActivity.class)));
+
+        btnList.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ListActivity.class)));
+
+        btnGrid.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, GridActivity.class)));
+
+    }
+
+}
+
+
+
+activity_main.xml :
+
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+
+    android:layout_height="match_parent"
+
+    android:orientation="vertical"
+
+    android:padding="20dp">
+
+
+
+    <Button
+
+        android:id="@+id/btnLinear"
+
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:text="Linear Layout"/>
+
+
+
+    <Button
+
+        android:id="@+id/btnRelative"
+
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:text="Relative Layout"/>
+
+
+
+    <Button
+
+        android:id="@+id/btnList"
+
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:text="List View"/>
+
+
+
+    <Button
+
+        android:id="@+id/btnGrid"
+
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:text="Grid View"/>
+
+</LinearLayout>
+
+
+
+LinearActivity.java :
+
+package com.example.myapplication6;
+
+import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+
+
+public class LinearActivity extends AppCompatActivity {
+
+    @Override
+
+    protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_linear);
+
+    }
+
+}
+
+
+
+
+activity_linear.xml :
+
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+
+    android:layout_height="match_parent"
+
+    android:orientation="vertical"
+
+    android:padding="20dp">
+
+
+
+    <TextView
+
+        android:layout_width="wrap_content"
+
+        android:layout_height="wrap_content"
+
+        android:text="Linear Layout "
+
+        android:textSize="20sp" />
+
+
+
+    <Button
+
+        android:layout_width="wrap_content"
+
+        android:layout_height="wrap_content"
+
+        android:text="Click Me"
+
+        android:layout_marginTop="10dp"/>
+
+</LinearLayout>
+
+
+
+RelativeActivity.java :
+
+package com.example.myapplication6;
+
+import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+
+
+public class RelativeActivity extends AppCompatActivity {
+
+    @Override
+
+    protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_relative);
+
+    }
+
+}
+
+
+
+
+activity_relative.xml :
+
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+
+    android:layout_height="match_parent">
+
+
+
+    <TextView
+
+        android:id="@+id/textView"
+
+        android:layout_width="wrap_content"
+
+        android:layout_height="wrap_content"
+
+        android:text="Relative Layout "
+
+        android:textSize="20sp"
+
+        android:layout_centerHorizontal="true" />
+
+
+
+    <Button
+
+        android:layout_width="wrap_content"
+
+        android:layout_height="wrap_content"
+
+        android:text="Click Me"
+
+        android:layout_below="@id/textView"
+
+        android:layout_centerHorizontal="true"
+
+        android:layout_marginTop="20dp"/>
+
+</RelativeLayout>
+
+
+
+GridActivity.java :
+
+package com.example.myapplication6;
+
+import android.os.Bundle;
+
+import android.widget.ArrayAdapter;
+
+import android.widget.GridView;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+
+
+public class GridActivity extends AppCompatActivity {
+
+    @Override
+
+    protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_grid);
+
+
+
+        GridView gridView = findViewById(R.id.gridView);
+
+        String[] numbers = {"1", "2", "3", "4", "5", "6", "7", "8", "9"};
+
+
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, numbers);
+
+        gridView.setAdapter(adapter);
+
+    }
+
+}
+
+
+
+
+activity_grid.xml :
+
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+
+    android:layout_height="match_parent"
+
+    android:orientation="vertical">
+
+
+
+    <GridView
+
+        android:id="@+id/gridView"
+
+        android:layout_width="match_parent"
+
+        android:layout_height="match_parent"
+
+        android:numColumns="3"/>
+
+</LinearLayout>
+
+
+
+ListActivity.java :
+
+package com.example.myapplication6;
+
+import android.os.Bundle;
+
+import android.widget.ArrayAdapter;
+
+import android.widget.ListView;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+
+
+public class ListActivity extends AppCompatActivity {
+
+    @Override
+
+    protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_list);
+
+
+
+        ListView listView = findViewById(R.id.listView);
+
+        String[] items = {"List 1", "List 2", "List 3", "List 4", "List 5"};
+
+
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
+
+        listView.setAdapter(adapter);
+
+    }
+
+}
+
+
+
+
+activity_list.java :
+
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+
+    android:layout_height="match_parent"
+
+    android:orientation="vertical">
+
+
+
+    <ListView
+
+        android:id="@+id/listView"
+
+        android:layout_width="match_parent"
+
+        android:layout_height="match_parent" />
+
+</LinearLayout>
+
+
+
+android_manifest.xml :
+
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.myapplication6">
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MyApplication7"
+        tools:targetApi="31">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+
+        <!-- Added required activities -->
+        <activity android:name=".LinearActivity" android:exported="false" />
+        <activity android:name=".RelativeActivity" android:exported="false" />
+        <activity android:name=".ListActivity" android:exported="false" />
+        <activity android:name=".GridActivity" android:exported="false" />
+
+    </application>
+
+</manifest>
