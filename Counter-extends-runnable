@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/counterText1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Counter 1: 0"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:padding="10dp"/>
+
+    <TextView
+        android:id="@+id/counterText2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Counter 2: 0"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:padding="10dp"/>
+
+    <Button
+        android:id="@+id/startButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start Counters"
+        android:layout_marginTop="10dp"/>
+
+    <Button
+        android:id="@+id/stopButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Stop Counters"
+        android:layout_marginTop="10dp"/>
+</LinearLayout>
+
+
+
+package com.example.crudnew;
+
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+
+    private TextView counterText1, counterText2;
+    private Button startButton, stopButton;
+    private Handler handler = new Handler(Looper.getMainLooper());
+
+    private CounterThread counterThread1;
+    private CounterRunnable counterRunnable;
+    private Thread thread2;
+
+    private boolean isRunning = false;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        counterText1 = findViewById(R.id.counterText1);
+        counterText2 = findViewById(R.id.counterText2);
+        startButton = findViewById(R.id.startButton);
+        stopButton = findViewById(R.id.stopButton);
+
+        startButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startCounters();
+            }
+        });
+
+        stopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopCounters();
+            }
+        });
+    }
+
+    private void startCounters() {
+        if (isRunning) return;
+        isRunning = true;
+
+        // Counter 1: Extending Thread
+        counterThread1 = new CounterThread();
+        counterThread1.start();
+
+        // Counter 2: Implementing Runnable
+        counterRunnable = new CounterRunnable();
+        thread2 = new Thread(counterRunnable);
+        thread2.start();
+    }
+
+    private void stopCounters() {
+        isRunning = false;
+        if (counterThread1 != null) {
+            counterThread1.interrupt();
+        }
+        if (thread2 != null) {
+            thread2.interrupt();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopCounters();
+    }
+
+    // Counter 1: Extending Thread
+    class CounterThread extends Thread {
+        private int counter1 = 0;
+
+        @Override
+        public void run() {
+            while (isRunning) {
+                counter1++;
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        counterText1.setText("Counter 1: " + counter1);
+                    }
+                });
+
+                try {
+                    Thread.sleep(1000); // 1-second delay
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        }
+    }
+
+    // Counter 2: Implementing Runnable
+    class CounterRunnable implements Runnable {
+        private int counter2 = 0;
+
+        @Override
+        public void run() {
+            while (isRunning) {
+                counter2++;
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        counterText2.setText("Counter 2: " + counter2);
+                    }
+                });
+
+                try {
+                    Thread.sleep(1000); // 1-second delay
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        }
+    }
+}
