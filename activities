@@ -1,0 +1,187 @@
+MainActivity.java :
+
+package com.example.myapplication4;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // Initialize views
+        EditText username = findViewById(R.id.username);
+        EditText password = findViewById(R.id.password);
+        Button loginButton = findViewById(R.id.loginButton);
+
+        // Set up Login button click listener
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Get input values
+                String user = username.getText().toString().trim(); // Trim spaces
+                String pass = password.getText().toString().trim(); // Trim spaces
+
+                // Check if fields are empty
+                if (user.isEmpty() || pass.isEmpty()) {
+                    Toast.makeText(MainActivity.this, "Please fill all fields!", Toast.LENGTH_SHORT).show();
+                } else if (user.equals("admin") && pass.equals("1234")) {
+                    // If credentials are correct, go to HomeActivity
+                    Toast.makeText(MainActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
+
+                    // Create an intent to navigate to HomeActivity
+                    Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                    // Pass the username to HomeActivity
+                    intent.putExtra("USERNAME", user);  // Pass username as an extra
+                    startActivity(intent);
+                    finish(); // Close the login screen
+                } else {
+                    // Invalid credentials
+                    Toast.makeText(MainActivity.this, "Invalid Credentials!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+}
+
+
+
+
+activity_main.xml :
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center">
+
+    <!-- Username EditText -->
+    <EditText
+        android:id="@+id/username"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Username"
+        android:inputType="text"
+        android:padding="10dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Password EditText -->
+    <EditText
+        android:id="@+id/password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:padding="10dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Login Button -->
+    <Button
+        android:id="@+id/loginButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Login"
+        android:padding="10dp" />
+
+</LinearLayout>
+
+
+
+HomeActivity.java :
+
+package com.example.myapplication4;
+
+import android.os.Bundle;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class HomeActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home);
+
+        // Get the username passed from MainActivity
+        String username = getIntent().getStringExtra("USERNAME");
+
+        // Display the welcome message
+        TextView welcomeText = findViewById(R.id.welcomeText);
+
+        // Check if welcomeText is null (to avoid crash)
+        if (welcomeText != null) {
+            welcomeText.setText("Welcome, " + username + "!");
+        }
+    }
+}
+
+
+
+activity_home.xml :
+
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp">
+
+    <!-- TextView to display the welcome message -->
+    <TextView
+        android:id="@+id/welcomeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Welcome!"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_centerInParent="true" />
+
+</RelativeLayout>
+
+
+
+AndroidManifest.xml :
+
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.myapplication4">
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MyApplication4"
+        tools:targetApi="31">
+
+        <!-- MainActivity Declaration -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- HomeActivity Declaration -->
+        <activity
+            android:name=".HomeActivity"
+            android:exported="true">
+        </activity>
+
+    </application>
+
+</manifest>
