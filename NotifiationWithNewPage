@@ -114,3 +114,11 @@ public class SecondActivity extends AppCompatActivity {
         android:text="Welcome to Second Page!"
         android:textSize="20sp"/>
 </LinearLayout>
+
+
+// add in AndroidManifest under already having activity tag
+
+<activity
+            android:name=".SecondActivity"
+            android:exported="true">
+        </activity>
